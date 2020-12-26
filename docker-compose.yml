@@ -1,0 +1,78 @@
+version: "3"
+services:
+  mongodb-primary:
+    image: mongo:4.4-bionic
+    container_name: mongo-primary
+    hostname: primary
+    command: >
+      mongod
+      --port 27011
+      --replSet m103-example
+      --dbpath /data/db
+      --auth --keyFile /etc/mongod-keyfile
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./volumes/mongodb/root:/root:ro # Initialize script
+      - ./volumes/mongodb/data/db/primary:/data/db:rw
+      - ./volumes/mongodb/etc/mongod-keyfile:/etc/mongod-keyfile:ro # Permission: 600
+    ports:
+      - 27011:27011
+    networks:
+      - m103-example-network
+    depends_on:
+      - secondary
+      - third
+    restart: on-failure
+
+  secondary:
+    image: mongo:4.4-bionic
+    container_name: mongo-secondary
+    hostname: secondary
+    command: >
+      mongod
+      --port 27012
+      --replSet m103-example
+      --dbpath /data/db
+      --auth --keyFile /etc/mongod-keyfile
+    volumes:
+      - ./volumes/mongodb/data/db/secondary:/data/db:rw
+      - ./volumes/mongodb/etc/mongod-keyfile:/etc/mongod-keyfile:ro # Permission: 600
+    ports:
+      - 27012:27012
+    networks:
+      - m103-example-network
+    depends_on:
+      - third
+    restart: on-failure
+
+  third:
+    image: mongo:4.4-bionic
+    container_name: mongodb-third
+    hostname: third
+    command: >
+      mongod
+      --port 27013
+      --replSet m103-example
+      --dbpath /data/db
+      --auth --keyFile /etc/mongod-keyfile
+    volumes:
+      - ./volumes/mongodb/data/db/third:/data/db:rw
+      - ./volumes/mongodb/etc/mongod-keyfile:/etc/mongod-keyfile:ro # Permission: 600
+    ports:
+      - 27013:27013
+    networks:
+      - m103-example-network
+    restart: on-failure
+
+networks:
+  m103-example-network:
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24
+
+#
+# Keyfile: ref. https://docs.mongodb.com/manual/tutorial/enforce-keyfile-access-control-in-existing-replica-set/
+# openssl rand -base64 756 > <path-to-keyfile>
+# chmod 400 <path-to-keyfile>
