@@ -1,1 +1,3 @@
-volumes/mongodb/data/*
+volumes/mongodb/primary/*
+volumes/mongodb/secondary/*
+volumes/mongodb/third/*
