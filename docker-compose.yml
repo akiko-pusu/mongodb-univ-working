@@ -12,8 +12,6 @@ services:
     volumes:
       - ./volumes/mongodb/root:/root:ro # Initialize script
       - ./volumes/mongodb/primary/data/db:/data/db:rw
-      - ./volumes/mongodb/etc/mongod-keyfile:/etc/mongod-keyfile:ro # Permission: 600
-    user: mongodb
     ports:
       - 27011:27011
     networks:
@@ -28,7 +26,6 @@ services:
     volumes:
       - ./volumes/mongodb/root:/root:ro # Initialize script
       - ./volumes/mongodb/secondary/data/db:/data/db:rw
-      - ./volumes/mongodb/etc/mongod-keyfile:/etc/mongod-keyfile:ro # Permission: 600
     ports:
       - 27012:27012
     depends_on:
@@ -45,7 +42,6 @@ services:
     volumes:
       - ./volumes/mongodb/root:/root:ro # Initialize script
       - ./volumes/mongodb/third/data/db:/data/db:rw
-      - ./volumes/mongodb/etc/mongod-keyfile:/etc/mongod-keyfile:ro # Permission: 600
     ports:
       - 27013:27013
     networks:
@@ -55,8 +51,8 @@ services:
 
 #
 # Keyfile: ref. https://docs.mongodb.com/manual/tutorial/enforce-keyfile-access-control-in-existing-replica-set/
-# openssl rand -base64 756 > <path-to-keyfile>
-# chmod 400 <path-to-keyfile>
+# openssl rand -base64 756 > ./volumes/mongodb/root/mongod-keyfile
+# chmod 400 ./volumes/mongodb/root/mongod-keyfile
 
 networks:
   replset:
